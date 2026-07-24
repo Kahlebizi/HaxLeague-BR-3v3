@@ -1506,7 +1506,8 @@ function setupCommands(room, database, teams, ranks, uniforms) {
 var room = HBInit({
     roomName: "HaxLeague BR | 3v3",
     maxPlayers: 20,
-    noPlayer: true
+    noPlayer: true,
+    public: true
 });
 
 // =====================================
