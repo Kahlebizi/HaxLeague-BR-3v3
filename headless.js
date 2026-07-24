@@ -1600,7 +1600,7 @@ var mapa = {
 // APLICA CONFIGURAÇÕES
 // =====================================
 
-room.setCustomStadium(JSON.stringify(mapa));
+// room.setCustomStadium(JSON.stringify(mapa));
 room.setScoreLimit(5);
 room.setTimeLimit(0);
 room.setTeamsLock(true);
