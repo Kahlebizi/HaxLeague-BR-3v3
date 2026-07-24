@@ -116,7 +116,7 @@ function startAFK(room) {
 
             let inactive = Date.now() - (lastActivity[player.id] || Date.now());
 
-            if (inactive >= 10000 && !afkWarning[player.id]) {
+            if (inactive >= 60000 && !afkWarning[player.id]) {
                 afkWarning[player.id] = true;
                 room.sendAnnouncement(
                     "⚠️ " + player.name + ", você está parado! Se não se mexer nos próximos 10 segundos será kickado.",
@@ -126,7 +126,7 @@ function startAFK(room) {
                 );
             }
 
-            if (inactive >= 20000 && afkWarning[player.id]) {
+            if (inactive >= 70000 && afkWarning[player.id]) {
                 room.kickPlayer(player.id, "AFK", false);
                 delete lastActivity[player.id];
                 delete afkWarning[player.id];
