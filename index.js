@@ -255,9 +255,9 @@ function clearTeams() {
 
 function updateTeams() {
     var players = room.getPlayerList();
-    players.forEach(function(p) { room.setTeam(p.id, 0); });
-    times.red.forEach(function(id) { room.setTeam(id, 1); });
-    times.blue.forEach(function(id) { room.setTeam(id, 2); });
+    players.forEach(function(p) { room.setPlayerTeam(p.id, 0); });
+    times.red.forEach(function(id) { room.setPlayerTeam(id, 1); });
+    times.blue.forEach(function(id) { room.setPlayerTeam(id, 2); });
 }
 
 function formRandomTeams() {
