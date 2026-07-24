@@ -716,7 +716,7 @@ function onPlayerLeave(room, player) {
 // uniforms.js
 // =====================================
 
-const uniforms = {
+uniforms = {
     // ===== SELEÇÕES =====
     "Brasil 🇧🇷": {
         colors: [0x009C3B, 0xFFDF00, 0x009C3B],
@@ -1063,10 +1063,10 @@ function searchUniform(search) {
 // bot.js
 // =====================================
 
-let touchHistory = [];
+ touchHistory = [];
 let lastBallSpeed = 0;
-let lastActivity = {};
-let afkWarning = {};
+lastActivity = {};
+afkWarning = {};
 
 const GOAL_MESSAGES = [
     "🔥 {player} meteu um balaço!",
@@ -1914,7 +1914,7 @@ function updateAdmins() {
 // UNIFORMES
 // =====================================
 
-var uniforms = {
+uniforms = {
     "Brasil": { colors: [0x009C3B, 0xFFDF00, 0x009C3B] },
     "Alemanha": { colors: [0x000000, 0xDD0000, 0xFFCC00] },
     "Argentina": { colors: [0x75AADB, 0xFFFFFF, 0x75AADB] },
