@@ -5,7 +5,8 @@
 var room = HBInit({
     roomName: "HaxLeague BR | 3v3",
     maxPlayers: 20,
-    noPlayer: true
+    noPlayer: true,
+    public: true
 });
 
 // =====================================
@@ -98,7 +99,7 @@ var mapa = {
 // APLICA CONFIGURAÇÕES
 // =====================================
 
-room.setCustomStadium(JSON.stringify(mapa));
+// room.setCustomStadium(JSON.stringify(mapa));
 room.setScoreLimit(5);
 room.setTimeLimit(0);
 room.setTeamsLock(true);
