@@ -1,7 +1,7 @@
-let touchHistory = [];
+ touchHistory = [];
 let lastBallSpeed = 0;
-let lastActivity = {};
-let afkWarning = {};
+lastActivity = {};
+afkWarning = {};
 
 const GOAL_MESSAGES = [
     "🔥 {player} meteu um balaço!",
