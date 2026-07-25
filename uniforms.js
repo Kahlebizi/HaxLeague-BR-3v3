@@ -1,280 +1,280 @@
-uniforms = {
+const uniforms = {
     // ===== SELEÇÕES =====
-    "Brasil 🇧🇷": {
+    "Brasil": {
         colors: [0x009C3B, 0xFFDF00, 0x009C3B],
         textColor: 0xFFFFFF
     },
-    "Argentina 🇦🇷": {
+    "Argentina": {
         colors: [0x75AADB, 0xFFFFFF, 0x75AADB],
         textColor: 0x000000
     },
-    "Espanha 🇪🇸": {
+    "Espanha": {
         colors: [0xAA151B, 0xF1BF00, 0xAA151B],
         textColor: 0xFFFFFF
     },
-    "França 🇫🇷": {
+    "França": {
         colors: [0x0055A4, 0xFFFFFF, 0xEF4135],
         textColor: 0xFFFFFF
     },
-    "Holanda 🇳🇱": {
+    "Holanda": {
         colors: [0xAE1C28, 0xFFFFFF, 0x21468B],
         textColor: 0xFFFFFF
     },
-    "Alemanha 🇩🇪": {
+    "Alemanha": {
         colors: [0x000000, 0xDD0000, 0xFFCC00],
         textColor: 0xFFFFFF
     },
-    "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿": {
+    "Inglaterra": {
         colors: [0xFFFFFF, 0xCF081F, 0xFFFFFF],
         textColor: 0x000000
     },
-    "Portugal 🇵🇹": {
+    "Portugal": {
         colors: [0x006600, 0xCC0000, 0x006600],
         textColor: 0xFFFFFF
     },
-    "Italia 🇮🇹": {
+    "Italia": {
         colors: [0x009246, 0xFFFFFF, 0xCE2B37],
         textColor: 0x000000
     },
-    "Uruguai 🇺🇾": {
+    "Uruguai": {
         colors: [0x75AADB, 0xFFFFFF, 0x75AADB],
         textColor: 0x000000
     },
 
     // ===== BRASIL - CLUBES =====
-    "Corinthians 🖤": {
+    "Corinthians": {
         colors: [0x000000, 0xFFFFFF, 0x000000],
         textColor: 0xFFFFFF
     },
-    "Palmeiras 💚": {
+    "Palmeiras": {
         colors: [0x006600, 0xFFFFFF, 0x006600],
         textColor: 0xFFFFFF
     },
-    "São Paulo ❤️": {
+    "São Paulo": {
         colors: [0xCC0000, 0xFFFFFF, 0xCC0000],
         textColor: 0x000000
     },
-    "Santos ⚪": {
+    "Santos": {
         colors: [0xFFFFFF, 0x000000, 0xFFFFFF],
         textColor: 0x000000
     },
-    "Flamengo ❤️🖤": {
+    "Flamengo": {
         colors: [0xCC0000, 0x000000, 0xCC0000],
         textColor: 0xFFFFFF
     },
-    "Vasco 💢": {
+    "Vasco": {
         colors: [0x000000, 0xFFFFFF, 0xCC0000],
         textColor: 0xFFFFFF
     },
-    "Fluminense ❤️💚": {
+    "Fluminense": {
         colors: [0xCC0000, 0x006600, 0xCC0000],
         textColor: 0xFFFFFF
     },
-    "Botafogo ⭐": {
+    "Botafogo": {
         colors: [0x000000, 0xFFFFFF, 0x000000],
         textColor: 0xFFFFFF
     },
-    "Internacional ❤️": {
+    "Internacional": {
         colors: [0xCC0000, 0xFFFFFF, 0xCC0000],
         textColor: 0xFFFFFF
     },
-    "Grêmio 💙": {
+    "Grêmio": {
         colors: [0x0066CC, 0xFFFFFF, 0x0066CC],
         textColor: 0xFFFFFF
     },
-    "Cruzeiro 💙": {
+    "Cruzeiro": {
         colors: [0x0066CC, 0xFFFFFF, 0x0066CC],
         textColor: 0xFFFFFF
     },
-    "Atlético-MG 🖤": {
+    "Atlético-MG": {
         colors: [0x000000, 0xFFFFFF, 0xCC0000],
         textColor: 0xFFFFFF
     },
-    "Bahia 💙❤️": {
+    "Bahia": {
         colors: [0x0066CC, 0xCC0000, 0x0066CC],
         textColor: 0xFFFFFF
     },
-    "Sport 🔴⚫": {
+    "Sport": {
         colors: [0xCC0000, 0x000000, 0xCC0000],
         textColor: 0xFFFFFF
     },
-    "Coritiba 💚": {
+    "Coritiba": {
         colors: [0x006600, 0xFFFFFF, 0x006600],
         textColor: 0xFFFFFF
     },
-    "Athletico-PR ❤️": {
+    "Athletico-PR": {
         colors: [0xCC0000, 0x000000, 0xCC0000],
         textColor: 0xFFFFFF
     },
 
     // ===== EUROPA - CLUBES =====
-    "Barcelona 🔵🔴": {
+    "Barcelona": {
         colors: [0x004D98, 0xCC0000, 0x004D98],
         textColor: 0xFFFFFF
     },
-    "Real Madrid ⚪": {
+    "Real Madrid": {
         colors: [0xFFFFFF, 0xFFFFFF, 0xFFFFFF],
         textColor: 0x000000
     },
-    "Real Madrid (Visitante) ⚫": {
+    "Real Madrid (Visitante)": {
         colors: [0x000000, 0x000000, 0x000000],
         textColor: 0xFFFFFF
     },
-    "Milan 🔴⚫": {
+    "Milan": {
         colors: [0xCC0000, 0x000000, 0xCC0000],
         textColor: 0xFFFFFF
     },
-    "Internazionale 🔵⚫": {
+    "Internazionale": {
         colors: [0x0066CC, 0x000000, 0x0066CC],
         textColor: 0xFFFFFF
     },
-    "Juventus ⚪⚫": {
+    "Juventus": {
         colors: [0xFFFFFF, 0x000000, 0xFFFFFF],
         textColor: 0x000000
     },
-    "Manchester United 🔴": {
+    "Manchester United": {
         colors: [0xCC0000, 0xFFFFFF, 0xCC0000],
         textColor: 0xFFFFFF
     },
-    "Manchester City 🔵": {
+    "Manchester City": {
         colors: [0x0066CC, 0xFFFFFF, 0x0066CC],
         textColor: 0xFFFFFF
     },
-    "Liverpool 🔴": {
+    "Liverpool": {
         colors: [0xCC0000, 0xFFFFFF, 0xCC0000],
         textColor: 0xFFFFFF
     },
-    "Chelsea 🔵": {
+    "Chelsea": {
         colors: [0x0066CC, 0xFFFFFF, 0x0066CC],
         textColor: 0xFFFFFF
     },
-    "Arsenal 🔴": {
+    "Arsenal": {
         colors: [0xCC0000, 0xFFFFFF, 0xCC0000],
         textColor: 0xFFFFFF
     },
-    "Bayern Munique 🔴🔵": {
+    "Bayern Munique": {
         colors: [0xCC0000, 0x0066CC, 0xCC0000],
         textColor: 0xFFFFFF
     },
-    "Borussia Dortmund ⚫🟡": {
+    "Borussia Dortmund": {
         colors: [0x000000, 0xFFCC00, 0x000000],
         textColor: 0xFFFFFF
     },
-    "Paris Saint-Germain 🔵❤️": {
+    "Paris Saint-Germain": {
         colors: [0x0066CC, 0xCC0000, 0x0066CC],
         textColor: 0xFFFFFF
     },
-    "Atletico Madrid 🔴⚪": {
+    "Atletico Madrid": {
         colors: [0xCC0000, 0xFFFFFF, 0xCC0000],
         textColor: 0xFFFFFF
     },
-    "Sevilla ⚪🔴": {
+    "Sevilla": {
         colors: [0xFFFFFF, 0xCC0000, 0xFFFFFF],
         textColor: 0x000000
     },
-    "Benfica 🔴⚪": {
+    "Benfica": {
         colors: [0xCC0000, 0xFFFFFF, 0xCC0000],
         textColor: 0xFFFFFF
     },
-    "Porto 🔵⚪": {
+    "Porto": {
         colors: [0x0066CC, 0xFFFFFF, 0x0066CC],
         textColor: 0xFFFFFF
     },
-    "Sporting 🔴💚": {
+    "Sporting": {
         colors: [0x006600, 0xCC0000, 0x006600],
         textColor: 0xFFFFFF
     },
-    "Ajax 🔴⚪": {
+    "Ajax": {
         colors: [0xCC0000, 0xFFFFFF, 0xCC0000],
         textColor: 0xFFFFFF
     },
-    "PSV Eindhoven 🔴⚪": {
+    "PSV Eindhoven": {
         colors: [0xCC0000, 0xFFFFFF, 0xCC0000],
         textColor: 0xFFFFFF
     },
-    "Celtic 🍀": {
+    "Celtic": {
         colors: [0x006600, 0xFFFFFF, 0x006600],
         textColor: 0xFFFFFF
     },
-    "Rangers 🔵⚪": {
+    "Rangers": {
         colors: [0x0066CC, 0xFFFFFF, 0x0066CC],
         textColor: 0xFFFFFF
     },
 
     // ===== OUTROS =====
-    "Boca Juniors 🔵🟡": {
+    "Boca Juniors": {
         colors: [0x0066CC, 0xFFCC00, 0x0066CC],
         textColor: 0xFFFFFF
     },
-    "River Plate 🔴⚪": {
+    "River Plate": {
         colors: [0xCC0000, 0xFFFFFF, 0xCC0000],
         textColor: 0xFFFFFF
     },
-    "Náutico 🔴⚪": {
+    "Náutico": {
         colors: [0xCC0000, 0xFFFFFF, 0xCC0000],
         textColor: 0xFFFFFF
     },
-    "Santa Cruz ⚫⚪": {
+    "Santa Cruz": {
         colors: [0x000000, 0xFFFFFF, 0x000000],
         textColor: 0xFFFFFF
     },
-    "Londrina 💙": {
+    "Londrina": {
         colors: [0x0066CC, 0xFFFFFF, 0x0066CC],
         textColor: 0xFFFFFF
     },
-    "Ceará ⚫⚪": {
+    "Ceará": {
         colors: [0x000000, 0xFFFFFF, 0x000000],
         textColor: 0xFFFFFF
     },
-    "Fortaleza 🔵⚪": {
+    "Fortaleza": {
         colors: [0x0066CC, 0xFFFFFF, 0x0066CC],
         textColor: 0xFFFFFF
     },
-    "Goiás 💚": {
+    "Goiás": {
         colors: [0x006600, 0xFFFFFF, 0x006600],
         textColor: 0xFFFFFF
     },
-    "Vila Nova 🔴⚪": {
+    "Vila Nova": {
         colors: [0xCC0000, 0xFFFFFF, 0xCC0000],
         textColor: 0xFFFFFF
     },
-    "Remo 🔵⚪": {
+    "Remo": {
         colors: [0x0066CC, 0xFFFFFF, 0x0066CC],
         textColor: 0xFFFFFF
     },
-    "Paysandu 🔵⚪": {
+    "Paysandu": {
         colors: [0x0066CC, 0xFFFFFF, 0x0066CC],
         textColor: 0xFFFFFF
     },
-    "América-MG 💚": {
+    "América-MG": {
         colors: [0x006600, 0xFFFFFF, 0x006600],
         textColor: 0xFFFFFF
     },
-    "Guarani ⚫⚪": {
+    "Guarani": {
         colors: [0x000000, 0xFFFFFF, 0x000000],
         textColor: 0xFFFFFF
     },
-    "Ponte Preta ⚫⚪": {
+    "Ponte Preta": {
         colors: [0x000000, 0xFFFFFF, 0x000000],
         textColor: 0xFFFFFF
     },
-    "Juventude 💚": {
+    "Juventude": {
         colors: [0x006600, 0xFFFFFF, 0x006600],
         textColor: 0xFFFFFF
     },
-    "Criciúma ⚫⚪": {
+    "Criciúma": {
         colors: [0x000000, 0xFFFFFF, 0x000000],
         textColor: 0xFFFFFF
     },
-    "Figueirense ⚫⚪": {
+    "Figueirense": {
         colors: [0x000000, 0xFFFFFF, 0x000000],
         textColor: 0xFFFFFF
     },
-    "Avaí 🔵⚪": {
+    "Avaí": {
         colors: [0x0066CC, 0xFFFFFF, 0x0066CC],
         textColor: 0xFFFFFF
     },
-    "Chapecoense 💚": {
+    "Chapecoense": {
         colors: [0x006600, 0xFFFFFF, 0x006600],
         textColor: 0xFFFFFF
     }
