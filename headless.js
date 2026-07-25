@@ -1490,10 +1490,19 @@ function setupCommands(room, database, teams, ranks, uniforms) {
             room.sendAnnouncement('🧹 Todos os bans foram removidos!', null, 0x00FF00);
             return false;
         }
+       
+        
+       
+        
+        data = database.getProfile(player.name);
+        rank = ranks.getRank(data);
 
-        return true;
+        formattedMessage = "[" + rank.emoji + " " + displayName + "]: " + message;
+        room.sendAnnouncement(formattedMessage, null, 0xFFFFFF, "normal", 1);
+        return false;
     };
 }
+
 
 
 // =====================================
