@@ -286,10 +286,6 @@ function setupCommands(room, database, teams, ranks, uniforms) {
        
         
         data = database.getProfile(player.name);
-        if (!data) {
-                database.createProfile(player);
-                data = database.getProfile(player.name);
-        }
         rank = ranks.getRank(data);
 
         formattedMessage = "[" + rank.emoji + " " + displayName + "]: " + message;
