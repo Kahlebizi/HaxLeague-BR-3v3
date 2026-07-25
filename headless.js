@@ -716,7 +716,7 @@ function onPlayerLeave(room, player) {
 // uniforms.js
 // =====================================
 
-const uniforms = {
+uniforms = {
     // ===== SELEÇÕES =====
     "Brasil": {
         colors: [0x009C3B, 0xFFDF00, 0x009C3B],
