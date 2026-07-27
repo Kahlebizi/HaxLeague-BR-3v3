@@ -1411,10 +1411,10 @@ function setupCommands(room, database, teams, ranks, uniforms) {
 // =====================================
 
 var room = HBInit({
-    roomName: "HaxLeague BR | 3v3",
+    roomName: "ESP League BR | 3v3",
     maxPlayers: 20,
     noPlayer: true,
-    public: false
+    public: true
 });
 
 // =====================================
@@ -1801,7 +1801,16 @@ room.onPlayerJoin = function(player) {
     if (!getProfile(player.name)) createProfile(player);
     lastActivity[player.id] = Date.now();
     var rank = getRank(getProfile(player.name));
-    room.sendAnnouncement("👋 Bem-vindo " + rank.emoji + " " + player.name + "! Digite !help", player.id, 0x00BFFF);
+    room.sendAnnouncement(
+        "👋 Bem-vindo á ESP League BR | 3v3, " + rank.emoji + " " + player.name + "!\n📌 Digite !help para ver os comandos",
+        player.id,
+        0x00BFFF,
+        "bold"
+    );
+    room.sendAnnouncement("🤖 Use o comando !login para se registar e salvar seus dados.",
+        player.id,
+        0x00BFFF,
+        "bold")
     setTimeout(function() { autoBalance(); }, 1000);
 };
 
