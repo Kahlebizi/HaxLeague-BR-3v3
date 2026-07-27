@@ -462,61 +462,8 @@ function autoBalance(room) {
         return;
     }
 
-    formRandomTeams(room);
 }
 
-function formRandomTeams(room) {
-    let players = room.getPlayerList();
-    let shuffled = [...players].sort(() => Math.random() - 0.5);
-
-    clearTeams(room);
-
-    let numPlayers = shuffled.length;
-    let teamSize = 1;
-
-    if (numPlayers >= 6) teamSize = 3;
-    else if (numPlayers >= 4) teamSize = 2;
-    else if (numPlayers >= 2) teamSize = 1;
-    else return;
-
-    let redTeam = [];
-    let blueTeam = [];
-
-    shuffled.forEach((p, index) => {
-        if (index < teamSize) {
-            redTeam.push(p.id);
-        } else if (index < teamSize * 2) {
-            blueTeam.push(p.id);
-        }
-    });
-
-    let extraPlayers = shuffled.slice(teamSize * 2);
-    extraPlayers.forEach(p => {
-        if (!queue.includes(p.id)) {
-            queue.push(p.id);
-        }
-    });
-
-    currentTeams.red = redTeam;
-    currentTeams.blue = blueTeam;
-    updateTeams(room);
-
-    let redNames = redTeam.map(id => players.find(p => p.id === id)?.name).join(', ');
-    let blueNames = blueTeam.map(id => players.find(p => p.id === id)?.name).join(', ');
-
-    room.sendAnnouncement(
-        "⚽ TIMES FORMADOS!\n\n" +
-        "🔴 Vermelho: " + (redNames || 'Vazio') + "\n" +
-        "🔵 Azul: " + (blueNames || 'Vazio') + "\n\n" +
-        (extraPlayers.length > 0 ? "📋 " + extraPlayers.length + " jogador(es) na fila" : "Bom jogo!"),
-        null,
-        0x00FF00
-    );
-
-    matchInProgress = true;
-    matchStats.redGoals = 0;
-    matchStats.blueGoals = 0;
-}
 
 function handleSubstitution(room) {
     let players = room.getPlayerList();
@@ -679,17 +626,6 @@ function forceBalance(room) {
     autoBalance(room);
 }
 
-function onTeamGoal(room, team) {
-    if (team === 1) {
-        matchStats.redGoals++;
-    } else if (team === 2) {
-        matchStats.blueGoals++;
-    }
-
-    if (matchStats.redGoals >= 5 || matchStats.blueGoals >= 5) {
-        setTimeout(() => endMatch(room), 1000);
-    }
-}
 
 function onGameTick(room) {
     // Verifica se a partida acabou pelo tempo ou outras condições
@@ -1103,14 +1039,14 @@ function getRandomMessage(array) {
     return array[Math.floor(Math.random() * array.length)];
 }
 
-function onPlayerJoin(room, player, database) {
+function onPlayerJoin(room, player) {
     lastActivity[player.id] = Date.now();
     
-    if (!database.getProfile(player.name)) {
-        database.createProfile(player);
+    if (!getProfile(player.name)) {
+        createProfile(player);
     }
     
-    let rank = database.getRank(database.getProfile(player.name));
+    let rank = getRank(getProfile(player.name));
     room.sendAnnouncement(
         "👋 Bem-vindo ao HaxLeague BR | 3v3, " + rank.emoji + " " + player.name + "!\n📌 Digite !help para ver os comandos",
         player.id,
@@ -1139,7 +1075,7 @@ function onPlayerBallKick(room, player) {
     lastBallSpeed = getBallSpeed(room);
 }
 
-function onTeamGoal(room, database) {
+function onTeamGoal(room) {
     if (touchHistory.length == 0) return;
 
     let players = room.getPlayerList();
@@ -1148,7 +1084,7 @@ function onTeamGoal(room, database) {
 
     if (!scorer) return;
 
-    database.addGoal(scorer.name);
+    addGoal(scorer.name);
 
     let message = getRandomMessage(GOAL_MESSAGES);
     message = message.replace("{player}", scorer.name);
@@ -1157,13 +1093,13 @@ function onTeamGoal(room, database) {
     let assist = players.find(p => p.id == assistId);
 
     if (assist && assist.team == scorer.team && assist.id != scorer.id) {
-        database.addAssist(assist.name);
+        addAssist(assist.name);
         let assistMsg = getRandomMessage(ASSIST_MESSAGES);
         assistMsg = assistMsg.replace("{assist}", assist.name).replace("{scorer}", scorer.name);
         message += "\n" + assistMsg;
     }
 
-    message += "\n⚽ Velocidade: " + lastBallSpeed + " km/h";
+
 
     room.sendAnnouncement(message, null, 0xFFD700, "bold");
 
@@ -1171,34 +1107,6 @@ function onTeamGoal(room, database) {
     lastBallSpeed = 0;
 }
 
-function startAFK(room) {
-    setInterval(function() {
-        let players = room.getPlayerList();
-        if (!players) return;
-
-        players.forEach(function(player) {
-            if (player.team == 0) return;
-
-            let inactive = Date.now() - (lastActivity[player.id] || Date.now());
-
-            if (inactive >= 60000 && !afkWarning[player.id]) {
-                afkWarning[player.id] = true;
-                room.sendAnnouncement(
-                    "⚠️ " + player.name + ", você está parado! Se não se mexer nos próximos 10 segundos será kickado.",
-                    player.id,
-                    0xFFAA00,
-                    "bold"
-                );
-            }
-
-            if (inactive >= 70000 && afkWarning[player.id]) {
-                room.kickPlayer(player.id, "AFK", false);
-                delete lastActivity[player.id];
-                delete afkWarning[player.id];
-            }
-        });
-    }, 1000);
-}
 
 
 
@@ -1506,7 +1414,7 @@ var room = HBInit({
     roomName: "HaxLeague BR | 3v3",
     maxPlayers: 20,
     noPlayer: true,
-    public: true
+    public: false
 });
 
 // =====================================
@@ -1682,42 +1590,61 @@ function updateTeams() {
 
 function formRandomTeams() {
     var players = room.getPlayerList();
-    var shuffled = [...players].sort(function() { return Math.random() - 0.5; });
-    clearTeams();
 
-    var numPlayers = shuffled.length;
-    var teamSize = 1;
-    if (numPlayers >= 6) teamSize = 3;
-    else if (numPlayers >= 4) teamSize = 2;
-    else if (numPlayers >= 2) teamSize = 1;
-    else return;
+    // Pega apenas quem está na plateia (Spec / Time 0)
+    var specs = players.filter(function(p) { return p.team === 0; });
 
-    var redTeam = [];
-    var blueTeam = [];
+    if (specs.length === 0) return;
 
-    shuffled.forEach(function(p, index) {
-        if (index < teamSize) redTeam.push(p.id);
-        else if (index < teamSize * 2) blueTeam.push(p.id);
+    // Define o tamanho máximo de cada time
+    var totalPlayers = players.length;
+    var targetTeamSize = 1;
+    if (totalPlayers >= 6) targetTeamSize = 3;
+    else if (totalPlayers >= 4) targetTeamSize = 2;
+    else if (totalPlayers >= 2) targetTeamSize = 1;
+
+    // Garante que os arrays de times existam
+    if (!times.red) times.red = [];
+    if (!times.blue) times.blue = [];
+
+    var currentRed = times.red.length;
+    var currentBlue = times.blue.length;
+
+    // Embaralha apenas os specs
+    var shuffledSpecs = [...specs].sort(function() { return Math.random() - 0.5; });
+    var extraPlayers = [];
+
+    shuffledSpecs.forEach(function(p) {
+        if (currentRed < targetTeamSize && currentRed <= currentBlue) {
+            times.red.push(p.id);
+            currentRed++;
+            // Move APENAS o novo jogador via API para não resetar os outros
+            room.setPlayerTeam(p.id, 1); 
+        } else if (currentBlue < targetTeamSize) {
+            times.blue.push(p.id);
+            currentBlue++;
+            // Move APENAS o novo jogador via API para não resetar os outros
+            room.setPlayerTeam(p.id, 2); 
+        } else {
+            extraPlayers.push(p);
+            if (!fila.includes(p.id)) fila.push(p.id);
+        }
     });
 
-    var extraPlayers = shuffled.slice(teamSize * 2);
-    extraPlayers.forEach(function(p) {
-        if (!fila.includes(p.id)) fila.push(p.id);
-    });
+    // Removemos a chamada de updateTeams() genérica para não resetar quem já tá jogando!
 
-    times.red = redTeam;
-    times.blue = blueTeam;
-    updateTeams();
-
-    var redNames = redTeam.map(function(id) {
+    // Busca os nomes atualizados para a mensagem
+    var redNames = times.red.map(function(id) {
         var p = players.find(function(x) { return x.id === id; });
         return p ? p.name : '?';
     }).join(', ');
-    var blueNames = blueTeam.map(function(id) {
+
+    var blueNames = times.blue.map(function(id) {
         var p = players.find(function(x) { return x.id === id; });
         return p ? p.name : '?';
     }).join(', ');
 
+    // Anúncio idêntico ao original
     room.sendAnnouncement(
         "⚽ TIMES FORMADOS!\n\n" +
         "🔴 Vermelho: " + (redNames || 'Vazio') + "\n" +
@@ -1800,24 +1727,6 @@ function startAFK() {
 
 var touchHistory = [];
 
-function onTeamGoal(room, team) {
-    if (touchHistory.length == 0) return;
-    var players = room.getPlayerList();
-    var scorerId = touchHistory[touchHistory.length - 1];
-    var scorer = players.find(function(p) { return p.id == scorerId; });
-    if (!scorer) return;
-
-    addGoal(scorer.name);
-    room.sendAnnouncement("⚽ GOL DE " + scorer.name + "!", null, 0xFFD700);
-
-    if (team === 1) placar.redGoals++;
-    else if (team === 2) placar.blueGoals++;
-
-    if (placar.redGoals >= 5 || placar.blueGoals >= 5) {
-        setTimeout(function() { endMatch(); }, 1000);
-    }
-    touchHistory = [];
-}
 
 // =====================================
 // ADMIN
@@ -2189,7 +2098,6 @@ room.onPlayerChat = function(player, message) {
 // =====================================
 
 loadDB();
-startAFK();
 console.log("✅ Servidor HaxLeague BR | 3v3 pronto!");
 console.log("📊 " + Object.keys(dbData.players).length + " jogadores cadastrados!");
 console.log("💡 Digite !help para ver os comandos!");

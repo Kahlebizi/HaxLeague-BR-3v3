@@ -118,61 +118,8 @@ function autoBalance(room) {
         return;
     }
 
-    formRandomTeams(room);
 }
 
-function formRandomTeams(room) {
-    let players = room.getPlayerList();
-    let shuffled = [...players].sort(() => Math.random() - 0.5);
-
-    clearTeams(room);
-
-    let numPlayers = shuffled.length;
-    let teamSize = 1;
-
-    if (numPlayers >= 6) teamSize = 3;
-    else if (numPlayers >= 4) teamSize = 2;
-    else if (numPlayers >= 2) teamSize = 1;
-    else return;
-
-    let redTeam = [];
-    let blueTeam = [];
-
-    shuffled.forEach((p, index) => {
-        if (index < teamSize) {
-            redTeam.push(p.id);
-        } else if (index < teamSize * 2) {
-            blueTeam.push(p.id);
-        }
-    });
-
-    let extraPlayers = shuffled.slice(teamSize * 2);
-    extraPlayers.forEach(p => {
-        if (!queue.includes(p.id)) {
-            queue.push(p.id);
-        }
-    });
-
-    currentTeams.red = redTeam;
-    currentTeams.blue = blueTeam;
-    updateTeams(room);
-
-    let redNames = redTeam.map(id => players.find(p => p.id === id)?.name).join(', ');
-    let blueNames = blueTeam.map(id => players.find(p => p.id === id)?.name).join(', ');
-
-    room.sendAnnouncement(
-        "⚽ TIMES FORMADOS!\n\n" +
-        "🔴 Vermelho: " + (redNames || 'Vazio') + "\n" +
-        "🔵 Azul: " + (blueNames || 'Vazio') + "\n\n" +
-        (extraPlayers.length > 0 ? "📋 " + extraPlayers.length + " jogador(es) na fila" : "Bom jogo!"),
-        null,
-        0x00FF00
-    );
-
-    matchInProgress = true;
-    matchStats.redGoals = 0;
-    matchStats.blueGoals = 0;
-}
 
 function handleSubstitution(room) {
     let players = room.getPlayerList();
@@ -335,17 +282,6 @@ function forceBalance(room) {
     autoBalance(room);
 }
 
-function onTeamGoal(room, team) {
-    if (team === 1) {
-        matchStats.redGoals++;
-    } else if (team === 2) {
-        matchStats.blueGoals++;
-    }
-
-    if (matchStats.redGoals >= 5 || matchStats.blueGoals >= 5) {
-        setTimeout(() => endMatch(room), 1000);
-    }
-}
 
 function onGameTick(room) {
     // Verifica se a partida acabou pelo tempo ou outras condições
@@ -378,7 +314,6 @@ module.exports = {
     getGameMode,
     balanceTeams,
     autoBalance,
-    formRandomTeams,
     handleSubstitution,
     updateTeams,
     clearTeams,

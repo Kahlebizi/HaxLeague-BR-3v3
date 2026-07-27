@@ -6,7 +6,7 @@ var room = HBInit({
     roomName: "HaxLeague BR | 3v3",
     maxPlayers: 20,
     noPlayer: true,
-    public: true
+    public: false
 });
 
 // =====================================
@@ -182,42 +182,61 @@ function updateTeams() {
 
 function formRandomTeams() {
     var players = room.getPlayerList();
-    var shuffled = [...players].sort(function() { return Math.random() - 0.5; });
-    clearTeams();
 
-    var numPlayers = shuffled.length;
-    var teamSize = 1;
-    if (numPlayers >= 6) teamSize = 3;
-    else if (numPlayers >= 4) teamSize = 2;
-    else if (numPlayers >= 2) teamSize = 1;
-    else return;
+    // Pega apenas quem está na plateia (Spec / Time 0)
+    var specs = players.filter(function(p) { return p.team === 0; });
 
-    var redTeam = [];
-    var blueTeam = [];
+    if (specs.length === 0) return;
 
-    shuffled.forEach(function(p, index) {
-        if (index < teamSize) redTeam.push(p.id);
-        else if (index < teamSize * 2) blueTeam.push(p.id);
+    // Define o tamanho máximo de cada time
+    var totalPlayers = players.length;
+    var targetTeamSize = 1;
+    if (totalPlayers >= 6) targetTeamSize = 3;
+    else if (totalPlayers >= 4) targetTeamSize = 2;
+    else if (totalPlayers >= 2) targetTeamSize = 1;
+
+    // Garante que os arrays de times existam
+    if (!times.red) times.red = [];
+    if (!times.blue) times.blue = [];
+
+    var currentRed = times.red.length;
+    var currentBlue = times.blue.length;
+
+    // Embaralha apenas os specs
+    var shuffledSpecs = [...specs].sort(function() { return Math.random() - 0.5; });
+    var extraPlayers = [];
+
+    shuffledSpecs.forEach(function(p) {
+        if (currentRed < targetTeamSize && currentRed <= currentBlue) {
+            times.red.push(p.id);
+            currentRed++;
+            // Move APENAS o novo jogador via API para não resetar os outros
+            room.setPlayerTeam(p.id, 1); 
+        } else if (currentBlue < targetTeamSize) {
+            times.blue.push(p.id);
+            currentBlue++;
+            // Move APENAS o novo jogador via API para não resetar os outros
+            room.setPlayerTeam(p.id, 2); 
+        } else {
+            extraPlayers.push(p);
+            if (!fila.includes(p.id)) fila.push(p.id);
+        }
     });
 
-    var extraPlayers = shuffled.slice(teamSize * 2);
-    extraPlayers.forEach(function(p) {
-        if (!fila.includes(p.id)) fila.push(p.id);
-    });
+    // Removemos a chamada de updateTeams() genérica para não resetar quem já tá jogando!
 
-    times.red = redTeam;
-    times.blue = blueTeam;
-    updateTeams();
-
-    var redNames = redTeam.map(function(id) {
+    // Busca os nomes atualizados para a mensagem
+    var redNames = times.red.map(function(id) {
         var p = players.find(function(x) { return x.id === id; });
         return p ? p.name : '?';
     }).join(', ');
-    var blueNames = blueTeam.map(function(id) {
+
+    var blueNames = times.blue.map(function(id) {
         var p = players.find(function(x) { return x.id === id; });
         return p ? p.name : '?';
     }).join(', ');
 
+    // Anúncio idêntico ao original
     room.sendAnnouncement(
         "⚽ TIMES FORMADOS!\n\n" +
         "🔴 Vermelho: " + (redNames || 'Vazio') + "\n" +
@@ -300,24 +319,6 @@ function startAFK() {
 
 var touchHistory = [];
 
-function onTeamGoal(room, team) {
-    if (touchHistory.length == 0) return;
-    var players = room.getPlayerList();
-    var scorerId = touchHistory[touchHistory.length - 1];
-    var scorer = players.find(function(p) { return p.id == scorerId; });
-    if (!scorer) return;
-
-    addGoal(scorer.name);
-    room.sendAnnouncement("⚽ GOL DE " + scorer.name + "!", null, 0xFFD700);
-
-    if (team === 1) placar.redGoals++;
-    else if (team === 2) placar.blueGoals++;
-
-    if (placar.redGoals >= 5 || placar.blueGoals >= 5) {
-        setTimeout(function() { endMatch(); }, 1000);
-    }
-    touchHistory = [];
-}
 
 // =====================================
 // ADMIN
@@ -689,7 +690,6 @@ room.onPlayerChat = function(player, message) {
 // =====================================
 
 loadDB();
-startAFK();
 console.log("✅ Servidor HaxLeague BR | 3v3 pronto!");
 console.log("📊 " + Object.keys(dbData.players).length + " jogadores cadastrados!");
 console.log("💡 Digite !help para ver os comandos!");

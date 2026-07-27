@@ -38,14 +38,14 @@ function getRandomMessage(array) {
     return array[Math.floor(Math.random() * array.length)];
 }
 
-function onPlayerJoin(room, player, database) {
+function onPlayerJoin(room, player) {
     lastActivity[player.id] = Date.now();
     
-    if (!database.getProfile(player.name)) {
-        database.createProfile(player);
+    if (!getProfile(player.name)) {
+        createProfile(player);
     }
     
-    let rank = database.getRank(database.getProfile(player.name));
+    let rank = getRank(getProfile(player.name));
     room.sendAnnouncement(
         "👋 Bem-vindo ao HaxLeague BR | 3v3, " + rank.emoji + " " + player.name + "!\n📌 Digite !help para ver os comandos",
         player.id,
@@ -74,7 +74,7 @@ function onPlayerBallKick(room, player) {
     lastBallSpeed = getBallSpeed(room);
 }
 
-function onTeamGoal(room, database) {
+function onTeamGoal(room) {
     if (touchHistory.length == 0) return;
 
     let players = room.getPlayerList();
@@ -83,7 +83,7 @@ function onTeamGoal(room, database) {
 
     if (!scorer) return;
 
-    database.addGoal(scorer.name);
+    addGoal(scorer.name);
 
     let message = getRandomMessage(GOAL_MESSAGES);
     message = message.replace("{player}", scorer.name);
@@ -92,13 +92,13 @@ function onTeamGoal(room, database) {
     let assist = players.find(p => p.id == assistId);
 
     if (assist && assist.team == scorer.team && assist.id != scorer.id) {
-        database.addAssist(assist.name);
+        addAssist(assist.name);
         let assistMsg = getRandomMessage(ASSIST_MESSAGES);
         assistMsg = assistMsg.replace("{assist}", assist.name).replace("{scorer}", scorer.name);
         message += "\n" + assistMsg;
     }
 
-    message += "\n⚽ Velocidade: " + lastBallSpeed + " km/h";
+
 
     room.sendAnnouncement(message, null, 0xFFD700, "bold");
 
@@ -106,34 +106,6 @@ function onTeamGoal(room, database) {
     lastBallSpeed = 0;
 }
 
-function startAFK(room) {
-    setInterval(function() {
-        let players = room.getPlayerList();
-        if (!players) return;
-
-        players.forEach(function(player) {
-            if (player.team == 0) return;
-
-            let inactive = Date.now() - (lastActivity[player.id] || Date.now());
-
-            if (inactive >= 60000 && !afkWarning[player.id]) {
-                afkWarning[player.id] = true;
-                room.sendAnnouncement(
-                    "⚠️ " + player.name + ", você está parado! Se não se mexer nos próximos 10 segundos será kickado.",
-                    player.id,
-                    0xFFAA00,
-                    "bold"
-                );
-            }
-
-            if (inactive >= 70000 && afkWarning[player.id]) {
-                room.kickPlayer(player.id, "AFK", false);
-                delete lastActivity[player.id];
-                delete afkWarning[player.id];
-            }
-        });
-    }, 1000);
-}
 
 module.exports = {
     onPlayerJoin,
