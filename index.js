@@ -163,8 +163,6 @@ HaxballJS().then((HBInit) => {
 function manageTeams() {
         if (gameEnding) return;
 
-        // TRAVA REMOVIDA: Os times agora mudam e se balanceiam mesmo com a partida rolando!
-
         var players = room.getPlayerList();
         var red = players.filter(p => p.team === 1);
         var blue = players.filter(p => p.team === 2);
@@ -177,7 +175,6 @@ function manageTeams() {
 
         updateQueue();
 
-        // Puxa da fila respeitando a ordem de chegada para preencher o time Vermelho
         while (red.length < maxPerTeam) {
             var nextId = fila.find(id => {
                 var p = room.getPlayer(id);
@@ -190,7 +187,6 @@ function manageTeams() {
             red.push(p);
         }
 
-        // Puxa da fila para preencher o time Azul
         while (blue.length < maxPerTeam) {
             var nextId = fila.find(id => {
                 var p = room.getPlayer(id);
@@ -203,7 +199,6 @@ function manageTeams() {
             blue.push(p);
         }
 
-        // Remove o excesso (quem entrou por último) se o número de jogadores cair
         while (red.length > maxPerTeam) {
             var p = red.pop();
             room.setPlayerTeam(p.id, 0);
@@ -215,16 +210,15 @@ function manageTeams() {
             addToQueue(p);
         }
 
-        // Inicia automaticamente caso a partida esteja parada e os times fiquem prontos
         var currentRed = room.getPlayerList().filter(p => p.team === 1).length;
         var currentBlue = room.getPlayerList().filter(p => p.team === 2).length;
 
-        if (room.getScores() === null && currentRed > 0 && currentRed === currentBlue) {
+        if (currentRed > 0 && currentRed === currentBlue) {
             setTimeout(function() {
                 if (room.getScores() === null) {
                     room.startGame();
                 }
-            }, 500);
+            }, 800);
         }
     }
     // =====================================
@@ -358,7 +352,7 @@ room.onPlayerTeamChange = function(changedPlayer, byPlayer) {
         secondLastKick = null;
     };
 
-    room.onTeamVictory = function(scores) {
+room.onTeamVictory = function(scores) {
         if (gameEnding) return;
         gameEnding = true;
 
@@ -379,7 +373,16 @@ room.onPlayerTeamChange = function(changedPlayer, byPlayer) {
         setTimeout(function() {
             room.stopGame();
             gameEnding = false;
-            manageTeams(winnerTeam);
+            manageTeams();
+
+            // Força o reinício garantido após o término para evitar que fique travado
+            setTimeout(function() {
+                var currentRed = room.getPlayerList().filter(p => p.team === 1).length;
+                var currentBlue = room.getPlayerList().filter(p => p.team === 2).length;
+                if (room.getScores() === null && currentRed > 0 && currentRed === currentBlue) {
+                    room.startGame();
+                }
+            }, 1000);
         }, 3000);
     };
 
