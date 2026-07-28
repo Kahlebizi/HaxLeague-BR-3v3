@@ -30,7 +30,6 @@ HaxballJS().then((HBInit) => {
     }
 
     var admins = ["Doggao", "~ 𝓚𝓪𝓱"];
-    room.setScoreLimit(3);
     room.setTimeLimit(3);
     room.setTeamsLock(true);
     
@@ -157,13 +156,19 @@ HaxballJS().then((HBInit) => {
         var totalPlayers = players.length;
         var isGameRunning = room.getScores() !== null;
 
+        // REGRA: Se tiver exatamente 1 jogador, limite de gols é 1 para terminar no 1º gol
+        if (totalPlayers === 1) {
+            room.setScoreLimit(1);
+        } else {
+            room.setScoreLimit(3);
+        }
+
         var red = players.filter(p => p.team === 1);
         var blue = players.filter(p => p.team === 2);
         var specs = players.filter(p => p.team === 0);
 
         // Se tiver MAIS que 6 jogadores -> Modo Capitães
         if (totalPlayers > 6) {
-            // Capitães não funcionam se a partida já começou
             if (isGameRunning) return;
 
             if (redCaptain && !room.getPlayer(redCaptain.id)) redCaptain = null;
@@ -192,17 +197,11 @@ HaxballJS().then((HBInit) => {
             }
 
         } else {
-            // Modo Autobalanceamento Dinâmico (<= 6 jogadores)
-            // FUNCIONA MESMO COM A PARTIDA JÁ COMEÇADA!
+            // Modo Autobalanceamento Dinâmico (<= 6 jogadores) - Funciona com partida iniciada
             redCaptain = null;
             blueCaptain = null;
 
-            // Define o tamanho máximo por time dinamicamente:
-            // 2 jogadores -> 1v1 (max = 1)
-            // 4 jogadores -> 2v2 (max = 2)
-            // 6 jogadores -> 3v3 (max = 3)
             var maxTeamSize = Math.min(3, Math.max(1, Math.floor(totalPlayers / 2)));
-
             var allActivePlayers = [...red, ...blue, ...specs];
             
             var newRedCount = 0;
@@ -353,6 +352,8 @@ HaxballJS().then((HBInit) => {
             gameEnding = false;
             redCaptain = null;
             blueCaptain = null;
+            
+            // Reorganiza os times novamente antes de iniciar a nova partida
             manageTeams();
 
             setTimeout(function() {
@@ -417,10 +418,75 @@ HaxballJS().then((HBInit) => {
                 "!ranking - Top 5 jogadores\n" +
                 "!fila - Ver fila de espera\n" +
                 "!pick <jogador> - Escolher jogador (Apenas Capitães)\n" +
+                "!setprofile [jogador] <status> <qtd> - Alterar status (Admin)\n" +
                 "!uni nome - Mudar uniforme do time (Admin)\n" +
                 "!unilist - Lista de uniformes",
                 player.id, 0x00BFFF
             );
+            return false;
+        }
+
+        // NOVO COMANDO: !setprofile (Exclusivo para admins)
+        if (cmd === "!setprofile") {
+            if (!player.admin && !admins.includes(player.name)) {
+                room.sendAnnouncement("❌ Apenas administradores podem usar este comando!", player.id, 0xFF0000);
+                return false;
+            }
+
+            var targetName = player.name;
+            var statusArg = "";
+            var qtdArg = 0;
+            var possibleStatus = ["gols", "assis", "assistencias", "partidas", "games", "vitorias", "wins", "derrotas", "losses"];
+
+            if (args.length === 3) {
+                statusArg = args[1].toLowerCase();
+                qtdArg = parseInt(args[2]);
+            } else if (args.length >= 4) {
+                if (possibleStatus.includes(args[1].toLowerCase())) {
+                    statusArg = args[1].toLowerCase();
+                    qtdArg = parseInt(args[2]);
+                    targetName = player.name;
+                } else {
+                    targetName = args[1];
+                    statusArg = args[2].toLowerCase();
+                    qtdArg = parseInt(args[3]);
+                }
+            } else {
+                room.sendAnnouncement("⚠️ Uso: !setprofile [jogador] <gols/assis/partidas/vitorias/derrotas> <quantidade>", player.id, 0xFFA500);
+                return false;
+            }
+
+            if (isNaN(qtdArg)) {
+                room.sendAnnouncement("❌ A quantidade deve ser um número válido!", player.id, 0xFF0000);
+                return false;
+            }
+
+            var profile = getProfile(targetName);
+            if (!profile) {
+                room.sendAnnouncement("❌ Jogador '" + targetName + "' não encontrado no banco de dados!", player.id, 0xFF0000);
+                return false;
+            }
+
+            var key = cleanKey(profile.name);
+            if (!dbData.players[key]) return false;
+
+            if (statusArg === "gols") {
+                dbData.players[key].goals = qtdArg;
+            } else if (statusArg === "assis" || statusArg === "assistencias") {
+                dbData.players[key].assists = qtdArg;
+            } else if (statusArg === "partidas" || statusArg === "games") {
+                dbData.players[key].games = qtdArg;
+            } else if (statusArg === "vitorias" || statusArg === "wins") {
+                dbData.players[key].wins = qtdArg;
+            } else if (statusArg === "derrotas" || statusArg === "losses") {
+                dbData.players[key].losses = qtdArg;
+            } else {
+                room.sendAnnouncement("❌ Status inválido! Use: gols, assis, partidas, vitorias ou derrotas.", player.id, 0xFF0000);
+                return false;
+            }
+
+            saveDB();
+            room.sendAnnouncement("✅ Perfil de " + profile.name + " atualizado com sucesso! (" + statusArg + " = " + qtdArg + ")", player.id, 0x00FF00, "bold");
             return false;
         }
 
@@ -553,5 +619,5 @@ HaxballJS().then((HBInit) => {
 
     // Inicialização
     loadDB();
-    console.log("🚀 Servidor pronto!");
+    console.log("🚀 Servidor pronto com todas as regras aplicadas!");
 });
