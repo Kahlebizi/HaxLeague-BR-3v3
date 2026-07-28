@@ -161,95 +161,120 @@ HaxballJS().then((HBInit) => {
         });
     }
 
-    function manageTeams(winnerTeam) {
-        if (gameEnding || isManaging) return;
-        isManaging = true; 
+function manageTeams() {
+        if (gameEnding) return;
 
-        updateQueue();
+        var players = room.getPlayerList();
+        var red = players.filter(p => p.team === 1);
+        var blue = players.filter(p => p.team === 2);
+        var specs = players.filter(p => p.team === 0);
 
-        if (winnerTeam !== undefined && winnerTeam !== 0) {
-            var redPlayers = room.getPlayerList().filter(p => p.team === 1);
-            var bluePlayers = room.getPlayerList().filter(p => p.team === 2);
-            var losers = (winnerTeam === 1) ? bluePlayers : redPlayers;
-            
-            losers.forEach(p => {
-                room.setPlayerTeam(p.id, 0);
-                removeFromQueue(p);
-                addToQueue(p);
-            });
+        var total = players.length;
+        
+        // Define o limite por time baseado em quantos jogadores há na sala (1v1, 2v2 ou até 3v3)
+        var maxPerTeam = 1;
+        if (total >= 6) maxPerTeam = 3;
+        else if (total >= 4) maxPerTeam = 2;
+        else if (total >= 2) maxPerTeam = 1;
+
+        // Se alguém entrou e há desbalanço ou vagas, puxa dos espectadores para equilibrar
+        while (red.length < maxPerTeam && red.length <= blue.length && specs.length > 0) {
+            var p = specs.shift();
+            room.setPlayerTeam(p.id, 1);
+            red.push(p);
         }
 
-        var totalOnline = room.getPlayerList().length;
-        var dynamicTeamSize = Math.max(1, Math.floor(totalOnline / 2));
-
-        var currentRed = room.getPlayerList().filter(p => p.team === 1);
-        var currentBlue = room.getPlayerList().filter(p => p.team === 2);
-
-        while (currentRed.length > dynamicTeamSize) {
-            var p = currentRed.pop();
-            room.setPlayerTeam(p.id, 0);
-            addToQueue(p);
-        }
-        while (currentBlue.length > dynamicTeamSize) {
-            var p = currentBlue.pop();
-            room.setPlayerTeam(p.id, 0);
-            addToQueue(p);
+        while (blue.length < maxPerTeam && blue.length <= red.length && specs.length > 0) {
+            var p = specs.shift();
+            room.setPlayerTeam(p.id, 2);
+            blue.push(p);
         }
 
-        currentRed = room.getPlayerList().filter(p => p.team === 1);
-        currentBlue = room.getPlayerList().filter(p => p.team === 2);
+        // Se o jogo está parado e os times estão balanceados com pelo menos 1 jogador cada, inicia automaticamente
+        var currentRed = room.getPlayerList().filter(p => p.team === 1).length;
+        var currentBlue = room.getPlayerList().filter(p => p.team === 2).length;
 
-        var specsInQueue = fila
-            .map(id => room.getPlayerList().find(p => p.id === id && p.team === 0))
-            .filter(Boolean);
-
-        while (specsInQueue.length > 0 && (currentRed.length < dynamicTeamSize || currentBlue.length < dynamicTeamSize)) {
-            if (currentRed.length <= currentBlue.length && currentRed.length < dynamicTeamSize) {
-                var p = specsInQueue.shift();
-                room.setPlayerTeam(p.id, 1);
-                removeFromQueue(p);
-                currentRed.push(p);
-            } else if (currentBlue.length < dynamicTeamSize) {
-                var p = specsInQueue.shift();
-                room.setPlayerTeam(p.id, 2);
-                removeFromQueue(p);
-                currentBlue.push(p);
-            } else {
-                break;
-            }
-        }
-
-        var finalRed = room.getPlayerList().filter(p => p.team === 1).length;
-        var finalBlue = room.getPlayerList().filter(p => p.team === 2).length;
-
-        if (room.getScores() === null && finalRed > 0 && finalRed === finalBlue) {
+        if (room.getScores() === null && currentRed > 0 && currentRed === currentBlue) {
             setTimeout(function() {
-                if (room.getScores() === null && !gameEnding) {
-                    var checkRed = room.getPlayerList().filter(p => p.team === 1).length;
-                    var checkBlue = room.getPlayerList().filter(p => p.team === 2).length;
-                    if (checkRed > 0 && checkRed === checkBlue) {
-                        room.startGame();
-                    }
+                if (room.getScores() === null) {
+                    room.startGame();
                 }
             }, 500);
         }
-
-        isManaging = false; 
     }
-
     // =====================================
     // UNIFORMES
     // =====================================
-    var uniforms = {
-        "Brasil": [0x009C3B, 0xFFDF00, 0x009C3B],
-        "Alemanha": [0x000000, 0xDD0000, 0xFFCC00],
-        "Argentina": [0x75AADB, 0xFFFFFF, 0x75AADB],
-        "Flamengo": [0xCC0000, 0x000000, 0xCC0000],
-        "Corinthians": [0x000000, 0xFFFFFF, 0x000000],
-        "RealMadrid": [0xFFFFFF, 0xFFFFFF, 0xFFFFFF],
-        "Barcelona": [0x004D98, 0xCC0000, 0x004D98]
-    };
-
+const uniforms = {
+    "Brasil": [0x009C3B, 0xFFDF00, 0x009C3B],
+    "Argentina": [0x75AADB, 0xFFFFFF, 0x75AADB],
+    "Espanha": [0xAA151B, 0xF1BF00, 0xAA151B],
+    "França": [0x0055A4, 0xFFFFFF, 0xEF4135],
+    "Holanda": [0xAE1C28, 0xFFFFFF, 0x21468B],
+    "Alemanha": [0x000000, 0xDD0000, 0xFFCC00],
+    "Inglaterra": [0xFFFFFF, 0xCF081F, 0xFFFFFF],
+    "Portugal": [0x006600, 0xCC0000, 0x006600],
+    "Italia": [0x009246, 0xFFFFFF, 0xCE2B37],
+    "Uruguai": [0x75AADB, 0xFFFFFF, 0x75AADB],
+    "Corinthians": [0x000000, 0xFFFFFF, 0x000000],
+    "Palmeiras": [0x006600, 0xFFFFFF, 0x006600],
+    "São Paulo": [0xCC0000, 0xFFFFFF, 0xCC0000],
+    "Santos": [0xFFFFFF, 0x000000, 0xFFFFFF],
+    "Flamengo": [0xCC0000, 0x000000, 0xCC0000],
+    "Vasco": [0x000000, 0xFFFFFF, 0xCC0000],
+    "Fluminense": [0xCC0000, 0x006600, 0xCC0000],
+    "Botafogo": [0x000000, 0xFFFFFF, 0x000000],
+    "Internacional": [0xCC0000, 0xFFFFFF, 0xCC0000],
+    "Grêmio": [0x0066CC, 0xFFFFFF, 0x0066CC],
+    "Cruzeiro": [0x0066CC, 0xFFFFFF, 0x0066CC],
+    "Atlético-MG": [0x000000, 0xFFFFFF, 0xCC0000],
+    "Bahia": [0x0066CC, 0xCC0000, 0x0066CC],
+    "Sport": [0xCC0000, 0x000000, 0xCC0000],
+    "Coritiba": [0x006600, 0xFFFFFF, 0x006600],
+    "Athletico-PR": [0xCC0000, 0x000000, 0xCC0000],
+    "Barcelona": [0x004D98, 0xCC0000, 0x004D98],
+    "Real Madrid": [0xFFFFFF, 0xFFFFFF, 0xFFFFFF],
+    "Real Madrid (Visitante)": [0x000000, 0x000000, 0x000000],
+    "Milan": [0xCC0000, 0x000000, 0xCC0000],
+    "Internazionale": [0x0066CC, 0x000000, 0x0066CC],
+    "Juventus": [0xFFFFFF, 0x000000, 0xFFFFFF],
+    "Manchester United": [0xCC0000, 0xFFFFFF, 0xCC0000],
+    "Manchester City": [0x0066CC, 0xFFFFFF, 0x0066CC],
+    "Liverpool": [0xCC0000, 0xFFFFFF, 0xCC0000],
+    "Chelsea": [0x0066CC, 0xFFFFFF, 0x0066CC],
+    "Arsenal": [0xCC0000, 0xFFFFFF, 0xCC0000],
+    "Bayern Munique": [0xCC0000, 0x0066CC, 0xCC0000],
+    "Borussia Dortmund": [0x000000, 0xFFCC00, 0x000000],
+    "Paris Saint-Germain": [0x0066CC, 0xCC0000, 0x0066CC],
+    "Atletico Madrid": [0xCC0000, 0xFFFFFF, 0xCC0000],
+    "Sevilla": [0xFFFFFF, 0xCC0000, 0xFFFFFF],
+    "Benfica": [0xCC0000, 0xFFFFFF, 0xCC0000],
+    "Porto": [0x0066CC, 0xFFFFFF, 0x0066CC],
+    "Sporting": [0x006600, 0xCC0000, 0x006600],
+    "Ajax": [0xCC0000, 0xFFFFFF, 0xCC0000],
+    "PSV Eindhoven": [0xCC0000, 0xFFFFFF, 0xCC0000],
+    "Celtic": [0x006600, 0xFFFFFF, 0x006600],
+    "Rangers": [0x0066CC, 0xFFFFFF, 0x0066CC],
+    "Boca Juniors": [0x0066CC, 0xFFCC00, 0x0066CC],
+    "River Plate": [0xCC0000, 0xFFFFFF, 0xCC0000],
+    "Náutico": [0xCC0000, 0xFFFFFF, 0xCC0000],
+    "Santa Cruz": [0x000000, 0xFFFFFF, 0x000000],
+    "Londrina": [0x0066CC, 0xFFFFFF, 0x0066CC],
+    "Ceará": [0x000000, 0xFFFFFF, 0x000000],
+    "Fortaleza": [0x0066CC, 0xFFFFFF, 0x0066CC],
+    "Goiás": [0x006600, 0xFFFFFF, 0x006600],
+    "Vila Nova": [0xCC0000, 0xFFFFFF, 0xCC0000],
+    "Remo": [0x0066CC, 0xFFFFFF, 0x0066CC],
+    "Paysandu": [0x0066CC, 0xFFFFFF, 0x0066CC],
+    "América-MG": [0x006600, 0xFFFFFF, 0x006600],
+    "Guarani": [0x000000, 0xFFFFFF, 0x000000],
+    "Ponte Preta": [0x000000, 0xFFFFFF, 0x000000],
+    "Juventude": [0x006600, 0xFFFFFF, 0x006600],
+    "Criciúma": [0x000000, 0xFFFFFF, 0x000000],
+    "Figueirense": [0x000000, 0xFFFFFF, 0x000000],
+    "Avaí": [0x0066CC, 0xFFFFFF, 0x0066CC],
+    "Chapecoense": [0x006600, 0xFFFFFF, 0x006600]
+};
     function setUniform(room, teamId, uniformName) {
         if (!uniforms[uniformName]) return false;
         room.setTeamColors(teamId, 0, 0xFFFFFF, uniforms[uniformName]);
@@ -271,24 +296,18 @@ HaxballJS().then((HBInit) => {
         manageTeams(); 
     };
 
-    room.onPlayerLeave = function(player) {
-        delete loggedInPlayers[player.id];
-        removeFromQueue(player);
-        var red = room.getPlayerList().filter(p => p.team === 1).length;
-        var blue = room.getPlayerList().filter(p => p.team === 2).length;
+room.onPlayerLeave = function(player) {
+    delete loggedInPlayers[player.id];
+    removeFromQueue(player);
+    
+    // A partida NUNCA para automaticamente ao sair jogadores
+    manageTeams();
+};
 
-        if (room.getScores() !== null && red !== blue) {
-            room.stopGame();
-            room.sendAnnouncement("⚠️ Um jogador saiu e a partida foi interrompida!", null, 0xFF0000, "bold");
-        }
+room.onPlayerTeamChange = function(changedPlayer, byPlayer) {
+
         manageTeams();
     };
-
-    room.onPlayerTeamChange = function(changedPlayer, byPlayer) {
-        if (isManaging) return; 
-        manageTeams();
-    };
-
     room.onPlayerBallKick = function(player) {
         if (!lastKick || lastKick.id !== player.id) {
             secondLastKick = lastKick;
