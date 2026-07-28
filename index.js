@@ -160,37 +160,62 @@ HaxballJS().then((HBInit) => {
             }
         });
     }
-
 function manageTeams() {
         if (gameEnding) return;
+
+        // TRAVA REMOVIDA: Os times agora mudam e se balanceiam mesmo com a partida rolando!
 
         var players = room.getPlayerList();
         var red = players.filter(p => p.team === 1);
         var blue = players.filter(p => p.team === 2);
-        var specs = players.filter(p => p.team === 0);
-
-        var total = players.length;
         
-        // Define o limite por time baseado em quantos jogadores há na sala (1v1, 2v2 ou até 3v3)
+        var total = players.length;
         var maxPerTeam = 1;
         if (total >= 6) maxPerTeam = 3;
         else if (total >= 4) maxPerTeam = 2;
         else if (total >= 2) maxPerTeam = 1;
 
-        // Se alguém entrou e há desbalanço ou vagas, puxa dos espectadores para equilibrar
-        while (red.length < maxPerTeam && red.length <= blue.length && specs.length > 0) {
-            var p = specs.shift();
+        updateQueue();
+
+        // Puxa da fila respeitando a ordem de chegada para preencher o time Vermelho
+        while (red.length < maxPerTeam) {
+            var nextId = fila.find(id => {
+                var p = room.getPlayer(id);
+                return p && p.team === 0;
+            });
+            if (!nextId) break;
+            var p = room.getPlayer(nextId);
             room.setPlayerTeam(p.id, 1);
+            removeFromQueue(p);
             red.push(p);
         }
 
-        while (blue.length < maxPerTeam && blue.length <= red.length && specs.length > 0) {
-            var p = specs.shift();
+        // Puxa da fila para preencher o time Azul
+        while (blue.length < maxPerTeam) {
+            var nextId = fila.find(id => {
+                var p = room.getPlayer(id);
+                return p && p.team === 0;
+            });
+            if (!nextId) break;
+            var p = room.getPlayer(nextId);
             room.setPlayerTeam(p.id, 2);
+            removeFromQueue(p);
             blue.push(p);
         }
 
-        // Se o jogo está parado e os times estão balanceados com pelo menos 1 jogador cada, inicia automaticamente
+        // Remove o excesso (quem entrou por último) se o número de jogadores cair
+        while (red.length > maxPerTeam) {
+            var p = red.pop();
+            room.setPlayerTeam(p.id, 0);
+            addToQueue(p);
+        }
+        while (blue.length > maxPerTeam) {
+            var p = blue.pop();
+            room.setPlayerTeam(p.id, 0);
+            addToQueue(p);
+        }
+
+        // Inicia automaticamente caso a partida esteja parada e os times fiquem prontos
         var currentRed = room.getPlayerList().filter(p => p.team === 1).length;
         var currentBlue = room.getPlayerList().filter(p => p.team === 2).length;
 
@@ -293,19 +318,21 @@ const uniforms = {
 
         room.setPlayerTeam(player.id, 0);
         addToQueue(player);
-        manageTeams(); 
+        manageTeams();
     };
 
 room.onPlayerLeave = function(player) {
     delete loggedInPlayers[player.id];
-    removeFromQueue(player);
-    
-    // A partida NUNCA para automaticamente ao sair jogadores
-    manageTeams();
+        removeFromQueue(player);
+        manageTeams();
 };
 
 room.onPlayerTeamChange = function(changedPlayer, byPlayer) {
-
+        if (changedPlayer.team === 0) {
+            addToQueue(changedPlayer);
+        } else {
+            removeFromQueue(changedPlayer);
+        }
         manageTeams();
     };
     room.onPlayerBallKick = function(player) {
