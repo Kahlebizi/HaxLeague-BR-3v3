@@ -264,7 +264,7 @@ HaxballJS().then((HBInit) => {
 
         loggedInPlayers[player.id] = false;
 
-        room.sendAnnouncement("🔐 Bem-vindo à ESP League BR, " + player.name + "!\n⚠️ Faça login com: !login <senha>\n📌 Sem cadastro? Use !register e acesse https://dcd.gg/espunited", player.id, 0xFF0000, "bold");
+        room.sendAnnouncement("🔐 Bem-vindo à ESP League BR, " + player.name + "!\n⚠️ Faça login com: !login <senha>\n📌 Sem cadastro? Use !register e acesse https://dcd.gg/espunited\n⚠️ Isso serve para salvar seus dados! Como perfil,gols,assistências e etc.", player.id, 0xFF0000, "bold");
 
         room.setPlayerTeam(player.id, 0);
         addToQueue(player);
